@@ -43,6 +43,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.mendhak.gpslogger.GpsMainActivity;
 import com.mendhak.gpslogger.R;
+import com.mendhak.gpslogger.common.AppSettings;
 import com.mendhak.gpslogger.common.IActionListener;
 import com.mendhak.gpslogger.common.Utilities;
 
@@ -298,7 +299,7 @@ public class GDocsSettingsActivity extends SherlockPreferenceActivity
     {
 
         Utilities.ShowProgress(GDocsSettingsActivity.this, getString(R.string.please_wait), getString(R.string.please_wait));
-        File gpxFolder = new File(Environment.getExternalStorageDirectory(), "GPSLogger");
+        File gpxFolder = new File(AppSettings.getGpsLoggerFolder());
         if (!gpxFolder.exists())
         {
             gpxFolder.mkdirs();

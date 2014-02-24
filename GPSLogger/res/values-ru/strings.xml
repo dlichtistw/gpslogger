@@ -40,25 +40,25 @@
   <string name="sharing_mylocation">Мои координаты</string>
   <string name="sharing_googlemaps_link" formatted="false">http://maps.google.com/maps?q=%s,%s</string>
   <string name="sharing_via">Опубликовать через</string>
-  <string name="foot"> фут</string>
-  <string name="feet"> футы</string>
-  <string name="meter"> метр</string>
-  <string name="meters"> метры</string>
+  <string name="foot">&#160;фут</string>
+  <string name="feet">&#160;футы</string>
+  <string name="meter">&#160;метр</string>
+  <string name="meters">&#160;метры</string>
   <string name="error">Ошибка</string>
   <string name="error_connection">Ошибка соединения. Пожайлуйста, проверьте настройки телефона.</string>
   <string name="gpsprovider_unavailable">Нет доступного источника GPS данных. Пожалуйста, проверьте настройки.
     </string>
   <string name="started">Начато</string>
-  <string name="providername_using">    (Используя %s)</string>
+  <string name="providername_using">&#160;&#160;&#160;&#160;(Используя %s)</string>
   <string name="providername_gps">спутники GPS</string>
   <string name="providername_celltower">сотовые вышки</string>
   <string name="not_applicable">неопределено</string>
-  <string name="meters_per_second"> м/с</string>
-  <string name="feet_per_second"> футов/с</string>
-  <string name="miles_per_hour"> миль/ч</string>
-  <string name="miles"> миль</string>
-  <string name="kilometers_per_hour"> км/ч</string>
-  <string name="kilometers"> км</string>
+  <string name="meters_per_second">&#160;м/с</string>
+  <string name="feet_per_second">&#160;футов/с</string>
+  <string name="miles_per_hour">&#160;миль/ч</string>
+  <string name="miles">&#160;миль</string>
+  <string name="kilometers_per_hour">&#160;км/ч</string>
+  <string name="kilometers">&#160;км</string>
   <string name="unknown_direction">неизвестно</string>
   <string name="sorry">Извините</string>
   <string name="success">Успешно</string>
@@ -122,19 +122,12 @@
         батарею.
     </string>
   <string name="time_before_logging_title">Период логирования точки</string>
-  <string name="time_before_logging_summary">Как долго ждать между сохранениями GPS точек. Используйте 0 для максимальной частоты, но медленнее лучше для жизни батареи.</string>
   <string name="time_before_logging_dialog_title">Время в секундах</string>
   <string name="time_before_logging_hint">Введите число секунд (max 9999)</string>
   <string name="keep_fix_summary">Будьте осторожны, это значительно сократит жизнь батареи. Используйте только для высокой точности с низкими интервалами.</string>
   <string name="keep_fix_title">Держать GPS включенным между местоопределениями</string>
-  <string name="retry_time_title">Интервал повтора при ошибке</string>
-  <string name="retry_time_summary">Если не найдено местоположение соответствующее критерию, сколько надо ждать прежде чем повторить попытку. Используйте 0 для бесконечного количества попыток.</string>
   <string name="retry_time_dialog_title">Время в секундах</string>
   <string name="retry_time_hint">Введите интервал в секундах (максимум 9999)</string>
-  <string name="distance_before_logging_title">Расстояние между точками</string>
-  <string name="distance_before_logging_summary">Какого должно быть расстояние до предыдущей точки прежде чем текущая точка будет сохранена. Используйте 0 для сохранения всех точек.</string>
-  <string name="accuracy_before_logging_title">Минимальная точность на точку</string>
-  <string name="accuracy_before_logging_summary">Насколько точно должно быть текущее GPS местоположение прежде чем оно занесется в журнал. Используйте 0 для сохранения всех точек.</string>
   <string name="timeout_time_title">Тайм-аут</string>
   <string name="timeout_time_summary">Как долго GPS остается в местоопределении перед отказом. Используйте 0 для отключения тайм-аута</string>
   <string name="timeout_time_dialog_title">Время в секундах</string>

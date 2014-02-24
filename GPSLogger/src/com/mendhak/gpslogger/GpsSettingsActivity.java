@@ -17,21 +17,25 @@
 
 package com.mendhak.gpslogger;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.*;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.util.Log;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.mendhak.gpslogger.common.FileDialog.FileDialog;
 import com.mendhak.gpslogger.common.Utilities;
 import com.mendhak.gpslogger.senders.osm.OSMHelper;
 
 public class GpsSettingsActivity extends SherlockPreferenceActivity
 {
 
+    private final static int SELECT_FOLDER_DIALOG=420;
     private final Handler handler = new Handler();
     private SharedPreferences prefs;
 
@@ -83,7 +87,10 @@ public class GpsSettingsActivity extends SherlockPreferenceActivity
         }
 
 
-
+        Preference gpsloggerFolder = (Preference) findPreference("gpslogger_folder");
+        gpsloggerFolder.setOnPreferenceClickListener(new GpsLoggerFolderPreferenceClickListener());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        gpsloggerFolder.setSummary(prefs.getString("gpslogger_folder", Environment.getExternalStorageDirectory() + "/GPSLogger"));
 
         CheckBoxPreference imperialCheckBox = (CheckBoxPreference) findPreference("useImperial");
         imperialCheckBox.setOnPreferenceChangeListener(new ImperialPreferenceChangeListener(prefs, distanceBeforeLogging, accuracyBeforeLogging));
@@ -98,18 +105,42 @@ public class GpsSettingsActivity extends SherlockPreferenceActivity
         CheckBoxPreference chkLog_opengts = (CheckBoxPreference) findPreference("log_opengts");
         chkLog_opengts.setOnPreferenceClickListener(new LogOpenGTSPreferenceClickListener(prefs));
 
-
+        /** 
+         * Logging Details - New file creation 
+         */
         ListPreference newFilePref = (ListPreference) findPreference("new_file_creation");
         newFilePref.setOnPreferenceChangeListener(new FileCreationPreferenceChangeListener());
+        /* Trigger artificially the listener and perform validations. */
+        newFilePref.getOnPreferenceChangeListener()
+                   .onPreferenceChange(newFilePref, newFilePref.getValue());
+
+    }
 
 
-        if(!newFilePref.getValue().equals("static"))
+    public synchronized void onActivityResult(final int requestCode, int resultCode, final Intent data)
+    {
+
+        if(requestCode==SELECT_FOLDER_DIALOG)
         {
-            Preference staticPref = (Preference)findPreference("new_file_static_name");
-            staticPref.setEnabled(false);
+            if (resultCode == Activity.RESULT_OK)
+            {
+                String filePath = data.getStringExtra(FileDialog.RESULT_PATH);
+                Utilities.LogDebug("Folder path selected" + filePath);
+
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("gpslogger_folder", filePath);
+                editor.commit();
+
+                Preference gpsloggerFolder = (Preference) findPreference("gpslogger_folder");
+                gpsloggerFolder.setSummary(filePath);
+
+            }
+            else if (resultCode == Activity.RESULT_CANCELED)
+            {
+                Utilities.LogDebug("No file selected");
+            }
         }
-
-
     }
 
 
@@ -148,6 +179,21 @@ public class GpsSettingsActivity extends SherlockPreferenceActivity
     };
 
 
+    public class GpsLoggerFolderPreferenceClickListener implements Preference.OnPreferenceClickListener {
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+
+            Intent intent = new Intent(getBaseContext(), FileDialog.class);
+            intent.putExtra(FileDialog.START_PATH, prefs.getString("gpslogger_folder",
+                    Environment.getExternalStorageDirectory() + "/GPSLogger"));
+
+            intent.putExtra(FileDialog.CAN_SELECT_DIR, true);
+            startActivityForResult(intent, SELECT_FOLDER_DIALOG);
+
+            return false;
+        }
+    }
+
     /**
      * Opens the Android Location preferences screen
      */
@@ -174,25 +220,25 @@ public class GpsSettingsActivity extends SherlockPreferenceActivity
         }
     }
 
+    /** 
+     * New file creation preference listener, if enabled let the user 
+     * choose a file name. 
+     * 
+     * TODO: Prompt the user immediately for a new file name or confirmation of
+     * the current name.
+     */
     private class FileCreationPreferenceChangeListener implements Preference.OnPreferenceChangeListener
     {
         @Override
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            System.out.print(newValue.toString());
-            Preference staticPref = (Preference)findPreference("new_file_static_name");
-            if(newValue.equals("static"))
-            {
-                staticPref.setEnabled(true);
-            }
-            else
-            {
-                staticPref.setEnabled(false);
-            }
+            
+        	boolean isFileStaticEnabled = newValue.equals("static");
+            Preference prefFileStaticName = (Preference)findPreference("new_file_static_name");
+            prefFileStaticName.setEnabled(isFileStaticEnabled);
 
             return true;
         }
     }
-
 
     private class ImperialPreferenceChangeListener implements Preference.OnPreferenceChangeListener
     {

@@ -419,5 +419,25 @@
     <string name="menu_faq">Help and FAQ</string>
     <string name="gpsf_missing">Missing Service</string>
     <string name="gpsf_missing_description">You will need Google Play Services Framework to use this feature.</string>
+    <string name="pref_loggingto_title">Log to...</string>
+    <string name="pref_loggingto_summary">Files and destinations to log your location to</string>
+    <string name="log_customurl_title">Log to custom URL</string>
+    <string name="log_customurl_summary">Send logging info to your own server over HTTP</string>
+    <string name="log_customurl_urlparameters">URL Parameters</string>
+    <string name="log_customUrl_urllatitude">Latitude: %LAT</string>
+    <string name="txt_annotation">Annotation:</string>
+    <string name="txt_time_isoformat">Time UTC (2011-12-25T15:27:33Z):</string>
+    <string name="txt_provider">Provider:</string>
+    <string name="annotation_requires_logging">Annotations require logging to GPX/KML/Custom URL</string>
+    <string name="filedialog_location">Location</string>
+    <string name="filedialog_cantreadfolder">Folder can\'t be read</string>
+    <string name="filedialog_new">New</string>
+    <string name="filedialog_name">Folder name:</string>
+    <string name="filedialog_create">Save</string>
+    <string name="filedialog_select">Select</string>
+    <string name="filedialog_no_data">No data</string>
+    <string name="gpslogger_folder_title">Save to folder</string>
+    <string name="gpslogger_folder_summary">Where to save the log files to, defaults to /sdcard/GPSLogger</string>
+
 
 </resources>
