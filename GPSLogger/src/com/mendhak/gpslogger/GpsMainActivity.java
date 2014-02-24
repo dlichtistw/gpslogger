@@ -41,7 +41,6 @@ import android.content.pm.PackageInfo;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -80,9 +79,7 @@ import com.mendhak.gpslogger.senders.gdocs.GDocsSettingsActivity;
 import com.mendhak.gpslogger.senders.opengts.OpenGTSActivity;
 import com.mendhak.gpslogger.senders.osm.OSMHelper;
 
-import java.io.File;
 import java.text.NumberFormat;
-import java.util.*;
 
 public class GpsMainActivity extends SherlockActivity implements OnCheckedChangeListener,
         IGpsLoggerServiceClient, View.OnClickListener, IActionListener
