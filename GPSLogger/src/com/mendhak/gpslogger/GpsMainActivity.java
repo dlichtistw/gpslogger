@@ -79,6 +79,10 @@ import com.mendhak.gpslogger.senders.gdocs.GDocsSettingsActivity;
 import com.mendhak.gpslogger.senders.opengts.OpenGTSActivity;
 import com.mendhak.gpslogger.senders.osm.OSMHelper;
 
+import java.io.File;
+import java.text.NumberFormat;
+import java.util.*;
+
 public class GpsMainActivity extends SherlockActivity implements OnCheckedChangeListener,
         IGpsLoggerServiceClient, View.OnClickListener, IActionListener
 {
@@ -89,6 +93,7 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
     private static Intent serviceIntent;
     private GpsLoggingService loggingService;
     private MenuItem mnuAnnotate;
+    private Menu menu;
 
     /**
      * Provides a connection to the GPS Logging Service
@@ -206,6 +211,8 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
         super.onResume();
         GetPreferences();
         StartAndBindService();
+
+        EnableDisableMenuItems();
     }
 
     /**
@@ -466,6 +473,17 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
         return super.onKeyDown(keyCode, event);
     }
 
+
+    public boolean onKeyUp(int keyCode, KeyEvent event){
+
+        if(keyCode == KeyEvent.KEYCODE_MENU){
+            Utilities.LogInfo("KeyUp Menu");
+            this.menu.performIdentifierAction(R.id.mnuOverflow,0);
+        }
+
+        return super.onKeyUp(keyCode, event);
+    }
+
     /**
      * Called when the menu is created.
      */
@@ -474,6 +492,8 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
         com.actionbarsherlock.view.MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.optionsmenu, menu);
         mnuAnnotate = menu.findItem(R.id.mnuAnnotate);
+        EnableDisableMenuItems();
+        this.menu = menu;
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
@@ -569,7 +589,7 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
         {
 
             final String locationOnly = getString(R.string.sharing_location_only);
-            final File gpxFolder = new File(Environment.getExternalStorageDirectory(), "GPSLogger");
+            final File gpxFolder = new File(AppSettings.getGpsLoggerFolder());
             if (gpxFolder.exists())
             {
 
@@ -764,7 +784,7 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
     private void ShowFileListDialog(final Intent settingsIntent, final IFileSender sender)
     {
 
-        final File gpxFolder = new File(Environment.getExternalStorageDirectory(), "GPSLogger");
+        final File gpxFolder = new File(AppSettings.getGpsLoggerFolder());
 
         if (gpxFolder.exists())
         {
@@ -830,14 +850,25 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
 
 
     /**
-     * Prompts user for input, then adds text to log file
+     * Annotates GPX and KML files, TXT files are ignored.
+     * 
+     * The annotation is done like this:
+     *     <wpt lat="##.##" lon="##.##">
+     *         <name>user input</name>
+     *     </wpt>
+     *    
+     * The user is prompted for the content of the <name> tag. If a valid
+     * description is given, the logging service starts in single point mode.
+     *  
      */
     private void Annotate()
     {
         Utilities.LogDebug("GpsMainActivity.Annotate");
 
-        if (!AppSettings.shouldLogToGpx() && !AppSettings.shouldLogToKml())
+        if (!AppSettings.shouldLogToGpx() && !AppSettings.shouldLogToKml() && !AppSettings.shouldLogToCustomUrl())
         {
+            Toast.makeText(getApplicationContext(), getString(R.string.annotation_requires_logging), 1000).show();
+
             return;
         }
 
@@ -851,11 +882,12 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
         input.setText(Session.getDescription());
         alert.setView(input);
 
+        /* ok */
         alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener()
         {
             public void onClick(DialogInterface dialog, int whichButton)
             {
-                final String desc = Utilities.CleanDescription(input.getText().toString());
+            	final String desc = Utilities.CleanDescription(input.getText().toString());
                 if (desc.length() == 0)
                 {
                     Session.clearDescription();
@@ -872,6 +904,7 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
             }
 
         });
+        
         alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
         {
             public void onClick(DialogInterface dialog, int whichButton)
@@ -1005,7 +1038,12 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
 
             tvDateTime.setText(new Date(Session.getLatestTimeStamp()).toLocaleString()
                     + getString(R.string.providername_using, providerName));
-            tvLatitude.setText(String.valueOf(loc.getLatitude()));
+
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setMaximumFractionDigits(3);
+
+
+            tvLatitude.setText(String.valueOf(   loc.getLatitude()));
             tvLongitude.setText(String.valueOf(loc.getLongitude()));
 
             if (loc.hasAltitude())
@@ -1015,12 +1053,12 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
 
                 if (AppSettings.shouldUseImperial())
                 {
-                    tvAltitude.setText(String.valueOf(Utilities.MetersToFeet(altitude))
+                    tvAltitude.setText( nf.format(Utilities.MetersToFeet(altitude))
                             + getString(R.string.feet));
                 }
                 else
                 {
-                    tvAltitude.setText(String.valueOf(altitude) + getString(R.string.meters));
+                    tvAltitude.setText(nf.format(altitude) + getString(R.string.meters));
                 }
 
             }
@@ -1061,7 +1099,7 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
                     }
                 }
 
-                txtSpeed.setText(String.valueOf(speed) + unit);
+                txtSpeed.setText(String.valueOf(nf.format(speed)) + unit);
 
             }
             else
@@ -1099,12 +1137,12 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
                 if (AppSettings.shouldUseImperial())
                 {
                     txtAccuracy.setText(getString(R.string.accuracy_within,
-                            String.valueOf(Utilities.MetersToFeet(accuracy)), getString(R.string.feet)));
+                            nf.format(Utilities.MetersToFeet(accuracy)), getString(R.string.feet)));
 
                 }
                 else
                 {
-                    txtAccuracy.setText(getString(R.string.accuracy_within, String.valueOf(accuracy),
+                    txtAccuracy.setText(getString(R.string.accuracy_within, nf.format(accuracy),
                             getString(R.string.meters)));
                 }
 
@@ -1149,6 +1187,23 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
 
     }
 
+    private void EnableDisableMenuItems() {
+        if(mnuAnnotate == null)
+        {
+            return;
+        }
+
+        if(!AppSettings.shouldLogToGpx() && !AppSettings.shouldLogToKml() && !AppSettings.shouldLogToCustomUrl())
+        {
+            mnuAnnotate.setIcon(R.drawable.ic_menu_edit_disabled);
+        }
+        else
+        {
+            mnuAnnotate.setIcon(R.drawable.ic_menu_edit);
+        }
+    }
+
+
     public void OnLocationUpdate(Location loc)
     {
         Utilities.LogDebug("GpsMainActivity.OnLocationUpdate");
@@ -1184,8 +1239,7 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
         {
 
 
-            txtFilename.setText(getString(R.string.summary_current_filename_format,
-                    Session.getCurrentFileName()));
+            txtFilename.setText(Session.getCurrentFileName() + " (" + AppSettings.getGpsLoggerFolder() + ")" );
         }
         else
         {
