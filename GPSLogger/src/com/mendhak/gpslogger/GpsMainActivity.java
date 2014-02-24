@@ -57,6 +57,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.actionbarsherlock.app.SherlockActivity;
@@ -1195,7 +1196,9 @@ public class GpsMainActivity extends SherlockActivity implements OnCheckedChange
 
         if(!AppSettings.shouldLogToGpx() && !AppSettings.shouldLogToKml() && !AppSettings.shouldLogToCustomUrl())
         {
-            mnuAnnotate.setIcon(R.drawable.ic_menu_edit_disabled);
+//TODO use ._disabled when the file is present in resources
+//            mnuAnnotate.setIcon(R.drawable.ic_menu_edit_disabled);
+            mnuAnnotate.setIcon(R.drawable.ic_menu_edit);
         }
         else
         {
